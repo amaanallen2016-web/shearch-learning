@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verity - The Universal Engine</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: white;
+            padding: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Header */
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5rem;
+            margin-top: 1rem;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Search Bar */
+        .search-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        select {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 0 1rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+            outline: none;
+        }
+        input[type="text"] {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            padding: 0 1rem;
+            outline: none;
+        }
+        button.search-btn {
+            background: #6366f1;
+            border: none;
+            border-radius: 35px;
+            padding: 0 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button.search-btn:active { transform: scale(0.95); }
+
+        /* AI Section */
+        .ai-section {
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(0, 0, 0, 0.3));
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            text-align: center;
+        }
+        .ai-orb {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #818cf8, #4f46e5);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            box-shadow: 0 0 20px #6366f1;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 10px #6366f1; }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px #818cf8; }
+            100% { transform: scale(1); box-shadow: 0 0 10px #6366f1; }
+        }
+        .ai-output {
+            min-height: 24px;
+            color: #a5b4fc;
+            font-size: 0.95rem;
+            margin-top: 10px;
+        }
+        .ai-controls { margin-top: 1rem; }
+        button.ai-btn {
+            background: #4338ca;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius:
