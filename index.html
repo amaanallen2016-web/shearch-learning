@@ -99,12 +99,53 @@
         /* Search Bar */
         .search-wrapper {
             display: flex;
-            gap: 0.5rem;
+            gap: 1rem;
             margin-bottom: 2rem;
             align-items: center;
             justify-content: center;
             width: 100%;
             position: relative;
+            flex-wrap: wrap;
+        }
+
+        /* Engine Selector */
+        .engine-selector-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .engine-label {
+            color: #666;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .engine-selector {
+            background-color: #111;
+            border: 2px solid #333;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            outline: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            min-width: 180px;
+        }
+
+        .engine-selector:hover {
+            border-color: #00ff00;
+        }
+
+        .engine-selector:focus {
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .engine-selector option {
+            background-color: #111;
+            color: #fff;
         }
 
         .search-container {
@@ -267,7 +308,12 @@
             line-height: 1.5;
         }
 
-        /* Games Container */
+        /* DuckDuckGo Lite Embed */
+        .ddg-lite-container {
+            width: 100%;
+            margin-top: 2rem;
+        }
+
         #games {
             width: 100%;
             margin-top: 2rem;
@@ -305,8 +351,16 @@
                 font-size: 2rem;
             }
 
+            .search-wrapper {
+                flex-direction: column;
+            }
+
             .search-container {
                 max-width: 100%;
+            }
+
+            .engine-selector {
+                min-width: 100%;
             }
         }
     </style>
@@ -326,8 +380,19 @@
 
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Search Bar -->
+            <!-- Search Wrapper with Engine Selector -->
             <div class="search-wrapper">
+                <!-- Engine Selector -->
+                <div class="engine-selector-container">
+                    <span class="engine-label">Engine:</span>
+                    <select class="engine-selector" id="searchEngine" onchange="saveEngineChoice()">
+                        <option value="duckduckgo-api">🔍 DuckDuckGo API</option>
+                        <option value="duckduckgo-lite">🦆 DuckDuckGo Lite</option>
+                        <option value="opensource">📚 Open Source</option>
+                    </select>
+                </div>
+
+                <!-- Search Bar -->
                 <div class="search-container">
                     <span class="search-placeholder" id="searchPlaceholder">/g for games</span>
                     <input 
@@ -355,6 +420,7 @@
             </div>
             <div id="resultsList"></div>
             <div id="games"></div>
+            <div class="ddg-lite-container" id="ddgLiteContainer"></div>
         </div>
     </div>
 
@@ -368,6 +434,19 @@
         setTimeout(() => {
             document.getElementById('loadingScreen').classList.add('hidden');
         }, 3000);
+
+        // Load saved engine choice
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedEngine = localStorage.getItem('selectedEngine');
+            if (savedEngine) {
+                document.getElementById('searchEngine').value = savedEngine;
+            }
+        });
+
+        function saveEngineChoice() {
+            const engine = document.getElementById('searchEngine').value;
+            localStorage.setItem('selectedEngine', engine);
+        }
 
         function hideSearchPlaceholder() {
             document.getElementById('searchPlaceholder').style.opacity = '0';
@@ -388,6 +467,7 @@
 
         function performSearch() {
             const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
+            const searchEngine = document.getElementById('searchEngine').value;
             
             if (!searchInput) {
                 alert('Please enter a search query');
@@ -398,27 +478,39 @@
             if (searchInput === '/g' || searchInput === 'g games' || searchInput === '/games') {
                 showGames();
             } else {
-                // Use DuckDuckGo search
-                searchWeb(searchInput);
+                // Use selected search engine
+                switch(searchEngine) {
+                    case 'duckduckgo-api':
+                        searchDuckDuckGoAPI(searchInput);
+                        break;
+                    case 'duckduckgo-lite':
+                        searchDuckDuckGoLite(searchInput);
+                        break;
+                    case 'opensource':
+                        searchOpenSource(searchInput);
+                        break;
+                }
             }
         }
 
-        function searchWeb(query) {
+        // Option 1: DuckDuckGo API - Results inside site
+        function searchDuckDuckGoAPI(query) {
             const resultsContainer = document.getElementById('resultsContainer');
             const resultsTitle = document.getElementById('resultsTitle');
             const resultsCount = document.getElementById('resultsCount');
             const resultsList = document.getElementById('resultsList');
             const gamesDiv = document.getElementById('games');
+            const ddgLiteContainer = document.getElementById('ddgLiteContainer');
 
-            gamesDiv.innerHTML = ''; // Clear games if any
+            gamesDiv.innerHTML = '';
+            ddgLiteContainer.innerHTML = '';
             
-            resultsTitle.textContent = `Search Results for "${query}"`;
+            resultsTitle.textContent = `Search Results for "${query}" (DuckDuckGo API)`;
             resultsCount.innerHTML = '<div class="loading-results"><div class="spinner"></div>Loading results...</div>';
             resultsList.innerHTML = '';
             
             resultsContainer.classList.add('active');
 
-            // Use DuckDuckGo Instant Answer API (no CORS issues)
             const duckDuckGoUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`;
 
             fetch(duckDuckGoUrl)
@@ -426,7 +518,6 @@
                 .then(data => {
                     let results = [];
 
-                    // Get results from DuckDuckGo
                     if (data.Results && data.Results.length > 0) {
                         results = data.Results.map(result => ({
                             title: result.Text,
@@ -435,7 +526,6 @@
                         }));
                     }
 
-                    // If no results from search, show related topics
                     if (results.length === 0 && data.RelatedTopics && data.RelatedTopics.length > 0) {
                         results = data.RelatedTopics.slice(0, 5).map(topic => ({
                             title: topic.Text,
@@ -444,7 +534,6 @@
                         }));
                     }
 
-                    // If still no results, use instant answer
                     if (results.length === 0 && data.Abstract) {
                         results = [{
                             title: data.AbstractText,
@@ -460,28 +549,127 @@
                     resultsCount.textContent = '';
                     resultsList.innerHTML = `
                         <div class="no-results">
-                            <p>Search completed. Redirecting to DuckDuckGo...</p>
+                            <p>Could not fetch results. Please try again.</p>
                         </div>
                     `;
-                    // Fallback: redirect to DuckDuckGo
-                    setTimeout(() => {
-                        window.location.href = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
-                    }, 1500);
                 });
+        }
+
+        // Option 2: DuckDuckGo Lite - Embedded directly
+        function searchDuckDuckGoLite(query) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsCount = document.getElementById('resultsCount');
+            const resultsList = document.getElementById('resultsList');
+            const gamesDiv = document.getElementById('games');
+            const ddgLiteContainer = document.getElementById('ddgLiteContainer');
+
+            gamesDiv.innerHTML = '';
+            resultsList.innerHTML = '';
+            
+            resultsTitle.textContent = `DuckDuckGo Lite - "${query}"`;
+            resultsCount.textContent = 'Powered by DuckDuckGo Lite';
+            
+            resultsContainer.classList.add('active');
+
+            // Embed DuckDuckGo Lite search
+            ddgLiteContainer.innerHTML = `
+                <iframe 
+                    src="https://lite.duckduckgo.com/?q=${encodeURIComponent(query)}" 
+                    style="width: 100%; height: 600px; border: 2px solid #333; border-radius: 8px; background: #111;"
+                    frameborder="0"
+                    allow="autoplay; encrypted-media"
+                ></iframe>
+            `;
+        }
+
+        // Option 3: Open Source Search - Static database
+        function searchOpenSource(query) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsCount = document.getElementById('resultsCount');
+            const resultsList = document.getElementById('resultsList');
+            const gamesDiv = document.getElementById('games');
+            const ddgLiteContainer = document.getElementById('ddgLiteContainer');
+
+            gamesDiv.innerHTML = '';
+            ddgLiteContainer.innerHTML = '';
+            
+            resultsTitle.textContent = `Open Source Results for "${query}"`;
+            
+            resultsContainer.classList.add('active');
+
+            // Open source search database
+            const openSourceDB = {
+                'python': [
+                    { title: 'Python Official', url: 'https://python.org', description: 'Official Python programming language' },
+                    { title: 'Python Docs', url: 'https://docs.python.org', description: 'Python documentation' },
+                    { title: 'PyPI - Python Package Index', url: 'https://pypi.org', description: 'Repository of Python packages' }
+                ],
+                'javascript': [
+                    { title: 'JavaScript MDN', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', description: 'JavaScript documentation' },
+                    { title: 'Node.js', url: 'https://nodejs.org', description: 'JavaScript runtime' }
+                ],
+                'github': [
+                    { title: 'GitHub', url: 'https://github.com', description: 'Code hosting platform' },
+                    { title: 'GitHub Docs', url: 'https://docs.github.com', description: 'GitHub documentation' }
+                ],
+                'open source': [
+                    { title: 'Open Source Initiative', url: 'https://opensource.org', description: 'Open source definition and info' },
+                    { title: 'OpenStack', url: 'https://www.openstack.org', description: 'Open source cloud computing' },
+                    { title: 'Apache Software Foundation', url: 'https://www.apache.org', description: 'Open source software foundation' }
+                ],
+                'linux': [
+                    { title: 'Linux Official', url: 'https://www.linux.com', description: 'Linux information' },
+                    { title: 'Ubuntu', url: 'https://ubuntu.com', description: 'Ubuntu Linux distribution' },
+                    { title: 'Fedora', url: 'https://getfedora.org', description: 'Fedora Linux distribution' }
+                ]
+            };
+
+            let results = [];
+            const queryLower = query.toLowerCase();
+
+            for (let key in openSourceDB) {
+                if (key.includes(queryLower) || queryLower.includes(key)) {
+                    results = results.concat(openSourceDB[key]);
+                }
+            }
+
+            if (results.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <p>No open source results found for "<strong>${escapeHtml(query)}</strong>"</p>
+                        <p style="margin-top: 0.5rem;">Try searching for: python, javascript, github, linux, or open source</p>
+                    </div>
+                `;
+                resultsCount.textContent = '0 results';
+            } else {
+                resultsCount.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
+                resultsList.innerHTML = '';
+                results.forEach(result => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result-item';
+                    resultDiv.innerHTML = `
+                        <div class="result-title">${escapeHtml(result.title)}</div>
+                        <a href="${result.url}" target="_blank" class="result-link">${escapeHtml(result.url)}</a>
+                        <div class="result-description">${escapeHtml(result.description)}</div>
+                    `;
+                    resultsList.appendChild(resultDiv);
+                });
+            }
         }
 
         function displayWebResults(results, query) {
             const resultsCount = document.getElementById('resultsCount');
             const resultsList = document.getElementById('resultsList');
 
-            resultsCount.textContent = `Found ${results.length} result${results.length !== 1 ? 's' : ''}`;
+            resultsCount.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
             resultsList.innerHTML = '';
 
             if (results.length === 0) {
                 resultsList.innerHTML = `
                     <div class="no-results">
                         <p>No results found for "<strong>${escapeHtml(query)}</strong>"</p>
-                        <p style="margin-top: 0.5rem;">Try different keywords</p>
                     </div>
                 `;
             } else {
@@ -504,14 +692,15 @@
             const resultsCount = document.getElementById('resultsCount');
             const resultsList = document.getElementById('resultsList');
             const gamesDiv = document.getElementById('games');
+            const ddgLiteContainer = document.getElementById('ddgLiteContainer');
             
             resultsList.innerHTML = '';
+            ddgLiteContainer.innerHTML = '';
             resultsTitle.textContent = 'Games - Lumin SDK';
             resultsCount.textContent = 'Browse available games';
             
             resultsContainer.classList.add('active');
             
-            // Initialize Lumin SDK
             setTimeout(() => {
                 if (typeof Lumin !== 'undefined') {
                     Lumin.init({
