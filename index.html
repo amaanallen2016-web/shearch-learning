@@ -11,7 +11,7 @@
             box-sizing: border-box;
         }
 
-        /* Loading Screen */
+        /* Loading Screen - ALWAYS ON TOP */
         .loading-screen {
             position: fixed;
             top: 0;
@@ -21,8 +21,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
+            z-index: 99999;
             animation: flashing 0.15s infinite;
+        }
+
+        .loading-screen.hidden {
+            display: none;
         }
 
         @keyframes flashing {
@@ -234,7 +238,6 @@
             margin-bottom: 1rem;
             text-align: left;
             transition: 0.3s;
-            cursor: pointer;
         }
 
         .result-item:hover {
@@ -249,11 +252,19 @@
             font-weight: bold;
         }
 
-        .result-url {
-            color: #666;
+        .result-link {
+            color: #00aaff;
             font-size: 0.85rem;
             margin-bottom: 0.5rem;
             word-break: break-all;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .result-link:hover {
+            color: #00ff00;
+            text-decoration: underline;
         }
 
         .result-description {
@@ -469,7 +480,7 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
+    <!-- Loading Screen - ON TOP OF EVERYTHING -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-text">verity</div>
     </div>
@@ -594,12 +605,17 @@
     </div>
 
     <script>
-        // Hide loading screen after 8 seconds
+        // Hide loading screen after 3 seconds - STAYS ON TOP
         window.addEventListener('load', function() {
             setTimeout(() => {
-                document.getElementById('loadingScreen').style.display = 'none';
-            }, 8000);
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 3000);
         });
+
+        // Also hide on initial load
+        setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+        }, 3000);
 
         // Check for saved engine choice
         window.addEventListener('DOMContentLoaded', function() {
@@ -620,38 +636,58 @@
             }
         }
 
-        // Verity Search Results Database
-        const verityDatabase = {
-            'youtube': [
-                { title: 'YouTube - Premium Video Platform', url: 'https://youtube.com', description: 'Watch, upload and share videos' },
-                { title: 'YouTube Gaming', url: 'https://gaming.youtube.com', description: 'Gaming content and live streams' }
-            ],
-            'github': [
-                { title: 'GitHub - Where the world builds software', url: 'https://github.com', description: 'Collaborate on code, projects and ideas' },
-                { title: 'GitHub Trending', url: 'https://github.com/trending', description: 'Discover trending repositories' }
-            ],
-            'reddit': [
-                { title: 'Reddit - The Front Page of the Internet', url: 'https://reddit.com', description: 'Thousands of communities' },
-                { title: 'Reddit Popular', url: 'https://reddit.com/r/popular', description: 'Popular posts across Reddit' }
-            ],
-            'google': [
-                { title: 'Google Search', url: 'https://google.com', description: 'Search the web' },
-                { title: 'Google Images', url: 'https://images.google.com', description: 'Search for images' }
-            ]
-        };
-
-        // AI Responses
-        const aiResponses = {
-            'hello': 'Hey there! 👋 I\'m Verity AI. How can I help you today?',
-            'hi': 'Hey! What can I search for you?',
-            'how are you': 'I\'m doing great! Ready to help you search and explore.',
-            'who are you': 'I\'m Verity AI, your intelligent search assistant. I can help you find information and navigate the web!',
-            'help': 'I can help you search the web, answer questions, or provide information. Just ask me anything!',
-            'search': 'You can use the search bar above to search with Verity Full Search or other engines!',
-            'thanks': 'You\'re welcome! Anything else I can help with?',
-            'thank you': 'Happy to help! Feel free to ask me anything.',
-            'bye': 'Goodbye! Feel free to chat with me anytime.',
-            'default': 'That\'s interesting! Feel free to use the search bar to find more information, or ask me something else.'
+        // REAL SEARCH DATABASE WITH ACTUAL LINKS
+        const searchDatabase = {
+            'youtube': {
+                'youtube': [
+                    { title: 'YouTube - Video Platform', url: 'https://www.youtube.com', description: 'Watch and upload videos' },
+                    { title: 'YouTube Gaming', url: 'https://www.youtube.com/gaming', description: 'Gaming content and streams' },
+                    { title: 'YouTube Music', url: 'https://music.youtube.com', description: 'Music streaming service' }
+                ],
+                'gaming': [
+                    { title: 'YouTube Gaming', url: 'https://www.youtube.com/gaming', description: 'Gaming streams and content' },
+                    { title: 'Twitch', url: 'https://www.twitch.tv', description: 'Live gaming streams' }
+                ],
+                'music': [
+                    { title: 'YouTube Music', url: 'https://music.youtube.com', description: 'Music streaming' },
+                    { title: 'Spotify', url: 'https://www.spotify.com', description: 'Music streaming service' }
+                ]
+            },
+            'github': {
+                'github': [
+                    { title: 'GitHub - Code Repository', url: 'https://www.github.com', description: 'Code collaboration platform' },
+                    { title: 'GitHub Trending', url: 'https://github.com/trending', description: 'Trending repositories' },
+                    { title: 'GitHub Copilot', url: 'https://github.com/features/copilot', description: 'AI coding assistant' }
+                ],
+                'code': [
+                    { title: 'GitHub', url: 'https://www.github.com', description: 'Code hosting platform' },
+                    { title: 'Stack Overflow', url: 'https://stackoverflow.com', description: 'Code Q&A' }
+                ],
+                'programming': [
+                    { title: 'GitHub', url: 'https://www.github.com', description: 'Programming repository' },
+                    { title: 'Stack Overflow', url: 'https://stackoverflow.com', description: 'Programming help' }
+                ]
+            },
+            'reddit': {
+                'reddit': [
+                    { title: 'Reddit - Community Discussion', url: 'https://www.reddit.com', description: 'Discussion communities' },
+                    { title: 'Reddit Popular', url: 'https://www.reddit.com/r/popular', description: 'Popular posts' },
+                    { title: 'Reddit Trending', url: 'https://www.reddit.com/r/all', description: 'All trending posts' }
+                ],
+                'news': [
+                    { title: 'Reddit News', url: 'https://www.reddit.com/r/news', description: 'News discussions' },
+                    { title: 'Reddit WorldNews', url: 'https://www.reddit.com/r/worldnews', description: 'World news' }
+                ]
+            },
+            'google': {
+                'search': [
+                    { title: 'Google Search', url: 'https://www.google.com', description: 'Web search engine' },
+                    { title: 'Google Images', url: 'https://images.google.com', description: 'Image search' }
+                ],
+                'maps': [
+                    { title: 'Google Maps', url: 'https://maps.google.com', description: 'Maps and directions' }
+                ]
+            }
         };
 
         function performSearch() {
@@ -675,20 +711,29 @@
 
             let results = [];
             
-            if (engine === 'verity') {
-                for (let key in verityDatabase) {
-                    results = results.concat(verityDatabase[key].filter(r =>
-                        r.title.toLowerCase().includes(query.toLowerCase()) ||
-                        r.description.toLowerCase().includes(query.toLowerCase())
-                    ));
+            // Search in the selected engine's database
+            if (searchDatabase[engine]) {
+                for (let key in searchDatabase[engine]) {
+                    if (key.toLowerCase().includes(query.toLowerCase()) || query.toLowerCase().includes(key.toLowerCase())) {
+                        results = results.concat(searchDatabase[engine][key]);
+                    }
                 }
-            } else if (verityDatabase[engine]) {
-                results = verityDatabase[engine];
+            }
+
+            // If no results, try broader search
+            if (results.length === 0 && engine === 'verity') {
+                for (let e in searchDatabase) {
+                    for (let key in searchDatabase[e]) {
+                        if (key.toLowerCase().includes(query.toLowerCase()) || query.toLowerCase().includes(key.toLowerCase())) {
+                            results = results.concat(searchDatabase[e][key]);
+                        }
+                    }
+                }
             }
 
             appsSection.style.display = 'none';
             
-            resultsTitle.textContent = `${engine.toUpperCase()} - Search Results for "${query}"`;
+            resultsTitle.textContent = `Results for "${query}" in ${engine.toUpperCase()}`;
             resultsCount.textContent = `Found ${results.length} result${results.length !== 1 ? 's' : ''}`;
 
             resultsList.innerHTML = '';
@@ -696,18 +741,17 @@
             if (results.length === 0) {
                 resultsList.innerHTML = `
                     <div class="no-results">
-                        <p>No results found for "<strong>${escapeHtml(query)}</strong>"</p>
-                        <p style="margin-top: 0.5rem;">Try different keywords</p>
+                        <p>❌ No results found for "<strong>${escapeHtml(query)}</strong>" in ${engine}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Try different keywords or switch search engine</p>
                     </div>
                 `;
             } else {
                 results.forEach(result => {
                     const resultDiv = document.createElement('div');
                     resultDiv.className = 'result-item';
-                    resultDiv.onclick = () => window.open(result.url, '_blank');
                     resultDiv.innerHTML = `
                         <div class="result-title">${escapeHtml(result.title)}</div>
-                        <div class="result-url">${escapeHtml(result.url)}</div>
+                        <a href="${result.url}" target="_blank" class="result-link">${escapeHtml(result.url)}</a>
                         <div class="result-description">${escapeHtml(result.description)}</div>
                     `;
                     resultsList.appendChild(resultDiv);
@@ -784,15 +828,19 @@
         }
 
         function getAIResponse(message) {
-            const lowerMessage = message.toLowerCase();
+            const lower = message.toLowerCase();
             
-            for (let key in aiResponses) {
-                if (lowerMessage.includes(key)) {
-                    return aiResponses[key];
-                }
+            if (lower.includes('hello') || lower.includes('hi')) {
+                return 'Hey there! 👋 How can I help you search today?';
+            } else if (lower.includes('who are you')) {
+                return 'I\'m Verity AI, your intelligent search assistant!';
+            } else if (lower.includes('search') || lower.includes('find')) {
+                return 'Use the search bar above to find what you\'re looking for!';
+            } else if (lower.includes('thank')) {
+                return 'Happy to help! 😊';
             }
             
-            return aiResponses['default'];
+            return 'That\'s interesting! Try searching for it above, or ask me something else.';
         }
 
         function handleAIEnter(e) {
