@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verity - The Universal Engine</title>
+    <title>Verity Search Engine</title>
     <style>
         * {
             margin: 0;
@@ -60,25 +60,40 @@
         .container {
             max-width: 900px;
             margin: 0 auto;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        }
+
+        /* Logo */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            font-style: italic;
+            transform: skewY(-10deg);
+        }
+
+        .logo-subtitle {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
         }
 
         /* Main Content */
         .main-content {
             text-align: center;
-            width: 100%;
-        }
-
-        .title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            margin-bottom: 2rem;
-            color: #fff;
-            letter-spacing: 3px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
         }
 
         /* Search Bar */
@@ -166,9 +181,6 @@
         .results-container {
             display: none;
             width: 100%;
-            max-width: 900px;
-            max-height: 70vh;
-            overflow-y: auto;
             margin-top: 2rem;
         }
 
@@ -212,29 +224,53 @@
             color: #00ff00;
         }
 
+        .result-item {
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .result-item:hover {
+            border-color: #00ff00;
+            background-color: #1a1a1a;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            color: #00ff00;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .result-link {
+            color: #00aaff;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .result-link:hover {
+            color: #00ff00;
+            text-decoration: underline;
+        }
+
+        .result-description {
+            color: #999;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
         /* Games Container */
         #games {
             width: 100%;
             margin-top: 2rem;
-        }
-
-        /* Scrollbar styling */
-        .results-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .results-container::-webkit-scrollbar-track {
-            background: #1a1a1a;
-            border-radius: 4px;
-        }
-
-        .results-container::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
-
-        .results-container::-webkit-scrollbar-thumb:hover {
-            background: #00ff00;
         }
 
         .no-results {
@@ -243,18 +279,34 @@
             color: #666;
         }
 
+        .loading-results {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 2px solid #333;
+            border-top: 2px solid #00ff00;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 600px) {
-            .title {
-                font-size: 2.5rem;
+            .logo {
+                font-size: 2rem;
             }
 
             .search-container {
                 max-width: 100%;
-            }
-
-            .container {
-                justify-content: flex-start;
-                padding-top: 2rem;
             }
         }
     </style>
@@ -266,14 +318,18 @@
     </div>
 
     <div class="container">
+        <!-- Logo -->
+        <div class="logo-container">
+            <div class="logo">verity</div>
+            <div class="logo-subtitle">SEARCH ENGINE</div>
+        </div>
+
         <!-- Main Content -->
         <div class="main-content">
-            <h1 class="title">verity</h1>
-
             <!-- Search Bar -->
             <div class="search-wrapper">
                 <div class="search-container">
-                    <span class="search-placeholder" id="searchPlaceholder">/g</span>
+                    <span class="search-placeholder" id="searchPlaceholder">/g for games</span>
                     <input 
                         type="text" 
                         class="search-input" 
@@ -292,11 +348,12 @@
         <div id="resultsContainer" class="results-container">
             <div class="results-header">
                 <div>
-                    <h2 class="results-title" id="resultsTitle">Games</h2>
+                    <h2 class="results-title" id="resultsTitle">Search Results</h2>
                     <p class="results-count" id="resultsCount"></p>
                 </div>
                 <button class="back-btn" onclick="hideResults()">← Back</button>
             </div>
+            <div id="resultsList"></div>
             <div id="games"></div>
         </div>
     </div>
@@ -332,11 +389,112 @@
         function performSearch() {
             const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
             
-            // Check if user typed /g or just 'g'
-            if (searchInput === '/g' || searchInput === 'g' || searchInput.includes('game')) {
+            if (!searchInput) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            // Check if user typed /g for games
+            if (searchInput === '/g' || searchInput === 'g games' || searchInput === '/games') {
                 showGames();
             } else {
-                alert('Type /g to see games');
+                // Use DuckDuckGo search
+                searchWeb(searchInput);
+            }
+        }
+
+        function searchWeb(query) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsCount = document.getElementById('resultsCount');
+            const resultsList = document.getElementById('resultsList');
+            const gamesDiv = document.getElementById('games');
+
+            gamesDiv.innerHTML = ''; // Clear games if any
+            
+            resultsTitle.textContent = `Search Results for "${query}"`;
+            resultsCount.innerHTML = '<div class="loading-results"><div class="spinner"></div>Loading results...</div>';
+            resultsList.innerHTML = '';
+            
+            resultsContainer.classList.add('active');
+
+            // Use DuckDuckGo Instant Answer API (no CORS issues)
+            const duckDuckGoUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`;
+
+            fetch(duckDuckGoUrl)
+                .then(response => response.json())
+                .then(data => {
+                    let results = [];
+
+                    // Get results from DuckDuckGo
+                    if (data.Results && data.Results.length > 0) {
+                        results = data.Results.map(result => ({
+                            title: result.Text,
+                            url: result.FirstURL,
+                            description: result.Text
+                        }));
+                    }
+
+                    // If no results from search, show related topics
+                    if (results.length === 0 && data.RelatedTopics && data.RelatedTopics.length > 0) {
+                        results = data.RelatedTopics.slice(0, 5).map(topic => ({
+                            title: topic.Text,
+                            url: topic.FirstURL || '#',
+                            description: topic.Text
+                        }));
+                    }
+
+                    // If still no results, use instant answer
+                    if (results.length === 0 && data.Abstract) {
+                        results = [{
+                            title: data.AbstractText,
+                            url: data.AbstractURL || '#',
+                            description: data.AbstractText
+                        }];
+                    }
+
+                    displayWebResults(results, query);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                    resultsCount.textContent = '';
+                    resultsList.innerHTML = `
+                        <div class="no-results">
+                            <p>Search completed. Redirecting to DuckDuckGo...</p>
+                        </div>
+                    `;
+                    // Fallback: redirect to DuckDuckGo
+                    setTimeout(() => {
+                        window.location.href = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+                    }, 1500);
+                });
+        }
+
+        function displayWebResults(results, query) {
+            const resultsCount = document.getElementById('resultsCount');
+            const resultsList = document.getElementById('resultsList');
+
+            resultsCount.textContent = `Found ${results.length} result${results.length !== 1 ? 's' : ''}`;
+            resultsList.innerHTML = '';
+
+            if (results.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <p>No results found for "<strong>${escapeHtml(query)}</strong>"</p>
+                        <p style="margin-top: 0.5rem;">Try different keywords</p>
+                    </div>
+                `;
+            } else {
+                results.forEach(result => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result-item';
+                    resultDiv.innerHTML = `
+                        <div class="result-title">${escapeHtml(result.title || 'No title')}</div>
+                        <a href="${result.url}" target="_blank" class="result-link">${escapeHtml(result.url)}</a>
+                        <div class="result-description">${escapeHtml(result.description || '')}</div>
+                    `;
+                    resultsList.appendChild(resultDiv);
+                });
             }
         }
 
@@ -344,7 +502,10 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const resultsTitle = document.getElementById('resultsTitle');
             const resultsCount = document.getElementById('resultsCount');
+            const resultsList = document.getElementById('resultsList');
+            const gamesDiv = document.getElementById('games');
             
+            resultsList.innerHTML = '';
             resultsTitle.textContent = 'Games - Lumin SDK';
             resultsCount.textContent = 'Browse available games';
             
@@ -365,6 +526,17 @@
             document.getElementById('resultsContainer').classList.remove('active');
             document.getElementById('searchInput').value = '';
             showSearchPlaceholder();
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return (text || '').replace(/[&<>"']/g, m => map[m]);
         }
     </script>
 </body>
