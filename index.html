@@ -49,6 +49,7 @@
             background-color: #000;
             color: #fff;
             padding: 1rem;
+            overflow-x: hidden;
         }
 
         .container {
@@ -56,54 +57,17 @@
             margin: 0 auto;
         }
 
-        /* Top Bar */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #333;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #00ff00;
-        }
-
-        .notifications {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .notification-icon {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #333;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .notification-icon:hover {
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
         /* Main Content */
         .main-content {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
+            margin-top: 1rem;
         }
 
         .title {
             font-size: 3.5rem;
             font-weight: 900;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
             color: #fff;
             letter-spacing: 3px;
         }
@@ -189,7 +153,7 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: #fff;
-            margin: 2rem 0 1rem 0;
+            margin: 1.5rem 0 1rem 0;
             text-transform: uppercase;
             letter-spacing: 1px;
             padding-left: 0.5rem;
@@ -197,9 +161,9 @@
 
         .apps-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .app-card {
@@ -214,7 +178,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 120px;
+            min-height: 100px;
         }
 
         .app-card:hover {
@@ -319,17 +283,188 @@
             color: #00ff00;
         }
 
-        /* Recommended Badge */
-        .recommended-badge {
-            display: inline-block;
-            background-color: #1a1a1a;
-            color: #00ff00;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
+        /* AI Chat Section */
+        .ai-chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            max-height: 600px;
+            background-color: #111;
+            border: 2px solid #333;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 255, 0, 0.2);
+            z-index: 1000;
+            transition: 0.3s;
+        }
+
+        .ai-chat-container.minimized {
+            max-height: 60px;
+        }
+
+        .ai-chat-container.minimized .ai-chat-content {
+            display: none;
+        }
+
+        .ai-chat-header {
+            background: linear-gradient(135deg, #1a1a1a, #222);
+            padding: 1rem;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .ai-chat-header:hover {
+            border-bottom-color: #00ff00;
+        }
+
+        .ai-chat-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             font-weight: bold;
-            margin-left: 0.5rem;
-            border: 1px solid #00ff00;
+            color: #fff;
+        }
+
+        .ai-icon {
+            font-size: 1.5rem;
+        }
+
+        .ai-close-btn {
+            background: transparent;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.3s;
+        }
+
+        .ai-close-btn:hover {
+            color: #00ff00;
+        }
+
+        .ai-chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .ai-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .message {
+            padding: 0.75rem;
+            border-radius: 8px;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background-color: #00ff00;
+            color: #000;
+            align-self: flex-end;
+            max-width: 80%;
+            font-weight: 600;
+        }
+
+        .message.ai {
+            background-color: #222;
+            color: #a5f000;
+            align-self: flex-start;
+            max-width: 85%;
+            border: 1px solid #333;
+        }
+
+        .ai-input-area {
+            display: flex;
+            gap: 0.5rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #333;
+        }
+
+        .ai-input {
+            flex: 1;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .ai-input:focus {
+            border-color: #00ff00;
+        }
+
+        .ai-input::placeholder {
+            color: #666;
+        }
+
+        .ai-send-btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .ai-send-btn:hover {
+            background: #33ff33;
+            transform: scale(1.05);
+        }
+
+        .ai-send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Scrollbar styling */
+        .ai-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ai-messages::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 3px;
+        }
+
+        .ai-messages::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .ai-messages::-webkit-scrollbar-thumb:hover {
+            background: #00ff00;
+        }
+
+        @media (max-width: 600px) {
+            .ai-chat-container {
+                width: 320px;
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .apps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -340,15 +475,6 @@
     </div>
 
     <div class="container">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="logo">⚡ fern.best</div>
-            <div class="notifications">
-                <div class="notification-icon">14</div>
-                <div class="notification-icon">⋯</div>
-            </div>
-        </div>
-
         <!-- Main Content -->
         <div class="main-content">
             <h1 class="title">verity</h1>
@@ -358,7 +484,7 @@
         <div class="search-wrapper">
             <div class="search-container">
                 <select class="engine-selector" id="searchEngine" onchange="saveEngineChoice()">
-                    <option value="verity" selected>🌐 Verity Full Search <span class="recommended-badge">RECOMMENDED</span></option>
+                    <option value="verity" selected>🌐 Verity Full Search</option>
                     <option value="google">Google</option>
                     <option value="youtube">YouTube</option>
                     <option value="github">GitHub</option>
@@ -385,9 +511,7 @@
 
         <!-- Quick Apps Section -->
         <div id="appsSection">
-            <div class="section-title">
-                Quick apps <span class="edit-btn" onclick="editApps()">Edit</span>
-            </div>
+            <div class="section-title">QUICK APPS</div>
             <div class="apps-grid">
                 <div class="app-card" onclick="openApp('youtube')">
                     <div class="app-icon">▶️</div>
@@ -435,8 +559,36 @@
                 </div>
                 <div class="app-card" onclick="openApp('drive')">
                     <div class="app-icon">☁️</div>
-                    <div class="app-name">Drive</div>
+                    <div class="app-name">Cloud</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verity AI Chat -->
+    <div class="ai-chat-container" id="aiChatContainer">
+        <div class="ai-chat-header" onclick="toggleAIChat()">
+            <div class="ai-chat-title">
+                <span class="ai-icon">🤖</span>
+                <span>Verity AI</span>
+            </div>
+            <button class="ai-close-btn" onclick="closeAIChat(event)">×</button>
+        </div>
+        <div class="ai-chat-content">
+            <div class="ai-messages" id="aiMessages">
+                <div class="message ai">
+                    Hello! I'm Verity AI. Ask me anything or search for information!
+                </div>
+            </div>
+            <div class="ai-input-area">
+                <input 
+                    type="text" 
+                    class="ai-input" 
+                    id="aiInput" 
+                    placeholder="Ask me anything..."
+                    onkeypress="handleAIEnter(event)"
+                >
+                <button class="ai-send-btn" onclick="sendAIMessage()">Send</button>
             </div>
         </div>
     </div>
@@ -488,6 +640,20 @@
             ]
         };
 
+        // AI Responses
+        const aiResponses = {
+            'hello': 'Hey there! 👋 I\'m Verity AI. How can I help you today?',
+            'hi': 'Hey! What can I search for you?',
+            'how are you': 'I\'m doing great! Ready to help you search and explore.',
+            'who are you': 'I\'m Verity AI, your intelligent search assistant. I can help you find information and navigate the web!',
+            'help': 'I can help you search the web, answer questions, or provide information. Just ask me anything!',
+            'search': 'You can use the search bar above to search with Verity Full Search or other engines!',
+            'thanks': 'You\'re welcome! Anything else I can help with?',
+            'thank you': 'Happy to help! Feel free to ask me anything.',
+            'bye': 'Goodbye! Feel free to chat with me anytime.',
+            'default': 'That\'s interesting! Feel free to use the search bar to find more information, or ask me something else.'
+        };
+
         function performSearch() {
             const searchInput = document.getElementById('searchInput').value.trim();
             const searchEngine = document.getElementById('searchEngine').value;
@@ -507,11 +673,9 @@
             const resultsCount = document.getElementById('resultsCount');
             const appsSection = document.getElementById('appsSection');
 
-            // Get results based on engine
             let results = [];
             
             if (engine === 'verity') {
-                // Verity searches from its database
                 for (let key in verityDatabase) {
                     results = results.concat(verityDatabase[key].filter(r =>
                         r.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -578,10 +742,6 @@
             }
         }
 
-        function editApps() {
-            alert('Edit functionality coming soon!');
-        }
-
         function escapeHtml(text) {
             const map = {
                 '&': '&amp;',
@@ -591,6 +751,63 @@
                 "'": '&#039;'
             };
             return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // AI Chat Functions
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            const messagesContainer = document.getElementById('aiMessages');
+
+            // Add user message
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'message user';
+            userMessageDiv.textContent = message;
+            messagesContainer.appendChild(userMessageDiv);
+
+            input.value = '';
+
+            // Add AI response
+            setTimeout(() => {
+                const response = getAIResponse(message);
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.className = 'message ai';
+                aiMessageDiv.textContent = response;
+                messagesContainer.appendChild(aiMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 500);
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function getAIResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            for (let key in aiResponses) {
+                if (lowerMessage.includes(key)) {
+                    return aiResponses[key];
+                }
+            }
+            
+            return aiResponses['default'];
+        }
+
+        function handleAIEnter(e) {
+            if (e.key === 'Enter') {
+                sendAIMessage();
+            }
+        }
+
+        function toggleAIChat() {
+            document.getElementById('aiChatContainer').classList.toggle('minimized');
+        }
+
+        function closeAIChat(e) {
+            e.stopPropagation();
+            document.getElementById('aiChatContainer').style.display = 'none';
         }
     </script>
 </body>
